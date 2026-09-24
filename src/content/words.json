@@ -1,0 +1,346 @@
+{
+  "themes": [
+    {
+      "id": "family-tree",
+      "title": "Family Tree",
+      "words": [
+        {
+          "id": "family",
+          "nl": "familie",
+          "en": "family",
+          "image": null
+        },
+        {
+          "id": "family-tree",
+          "nl": "stamboom",
+          "en": "family tree",
+          "image": null
+        },
+        {
+          "id": "brother",
+          "nl": "broer",
+          "en": "brother",
+          "image": null
+        },
+        {
+          "id": "sister",
+          "nl": "zus",
+          "en": "sister",
+          "image": null
+        },
+        {
+          "id": "mum-mother",
+          "nl": "moeder",
+          "en": "mum / mother",
+          "image": null
+        },
+        {
+          "id": "dad-father",
+          "nl": "vader",
+          "en": "dad / father",
+          "image": null
+        },
+        {
+          "id": "wife",
+          "nl": "vrouw / echtgenote",
+          "en": "wife",
+          "image": null
+        },
+        {
+          "id": "husband",
+          "nl": "man / echtgenoot",
+          "en": "husband",
+          "image": null
+        },
+        {
+          "id": "son",
+          "nl": "zoon",
+          "en": "son",
+          "image": null
+        },
+        {
+          "id": "daughter",
+          "nl": "dochter",
+          "en": "daughter",
+          "image": null
+        },
+        {
+          "id": "aunt",
+          "nl": "tante",
+          "en": "aunt",
+          "image": null
+        },
+        {
+          "id": "uncle",
+          "nl": "oom",
+          "en": "uncle",
+          "image": null
+        },
+        {
+          "id": "cousin",
+          "nl": "neef / nicht",
+          "en": "cousin",
+          "image": null
+        },
+        {
+          "id": "grandma-grandmother",
+          "nl": "oma / grootmoeder",
+          "en": "grandma / grandmother",
+          "image": null
+        },
+        {
+          "id": "grandpa-grandfather",
+          "nl": "opa / grootvader",
+          "en": "grandpa / grandfather",
+          "image": null
+        },
+        {
+          "id": "parents",
+          "nl": "ouders",
+          "en": "parents",
+          "image": null
+        },
+        {
+          "id": "children",
+          "nl": "kinderen",
+          "en": "children",
+          "image": null
+        },
+        {
+          "id": "people",
+          "nl": "mensen",
+          "en": "people",
+          "image": null
+        },
+        {
+          "id": "young",
+          "nl": "jong",
+          "en": "young",
+          "image": null
+        },
+        {
+          "id": "tall",
+          "nl": "lang",
+          "en": "tall",
+          "image": null
+        },
+        {
+          "id": "short-hair",
+          "nl": "kort haar",
+          "en": "short hair",
+          "image": null
+        },
+        {
+          "id": "teacher",
+          "nl": "leerkracht",
+          "en": "teacher",
+          "image": null
+        },
+        {
+          "id": "job",
+          "nl": "baan / werk",
+          "en": "job",
+          "image": null
+        },
+        {
+          "id": "swimming-pool",
+          "nl": "zwembad",
+          "en": "swimming pool",
+          "image": null
+        },
+        {
+          "id": "school",
+          "nl": "school",
+          "en": "school",
+          "image": null
+        },
+        {
+          "id": "skate",
+          "nl": "skateboarden",
+          "en": "skate",
+          "image": null
+        },
+        {
+          "id": "read",
+          "nl": "lezen",
+          "en": "read",
+          "image": null
+        },
+        {
+          "id": "book",
+          "nl": "boek",
+          "en": "book",
+          "image": null
+        },
+        {
+          "id": "magazine",
+          "nl": "tijdschrift",
+          "en": "magazine",
+          "image": null
+        },
+        {
+          "id": "watch-tv",
+          "nl": "tv kijken",
+          "en": "watch TV",
+          "image": null
+        },
+        {
+          "id": "play",
+          "nl": "spelen",
+          "en": "play",
+          "image": null
+        },
+        {
+          "id": "together",
+          "nl": "samen",
+          "en": "together",
+          "image": null
+        },
+        {
+          "id": "often",
+          "nl": "vaak",
+          "en": "often",
+          "image": null
+        }
+      ]
+    },
+    {
+      "id": "korte-zinnen",
+      "title": "Korte zinnen",
+      "words": [
+        {
+          "id": "this-is-my-family",
+          "nl": "Dit is mijn familie.",
+          "en": "This is my family.",
+          "image": null
+        },
+        {
+          "id": "this-is-my-family-tree",
+          "nl": "Dit is mijn stamboom.",
+          "en": "This is my family tree.",
+          "image": null
+        },
+        {
+          "id": "this-is-my-brother",
+          "nl": "Dit is mijn broer.",
+          "en": "This is my brother.",
+          "image": null
+        },
+        {
+          "id": "this-is-my-sister",
+          "nl": "Dit is mijn zus.",
+          "en": "This is my sister.",
+          "image": null
+        },
+        {
+          "id": "this-is-my-mum",
+          "nl": "Dit is mijn moeder.",
+          "en": "This is my mum.",
+          "image": null
+        },
+        {
+          "id": "this-is-my-dad",
+          "nl": "Dit is mijn vader.",
+          "en": "This is my dad.",
+          "image": null
+        },
+        {
+          "id": "his-name-is",
+          "nl": "Zijn naam is …",
+          "en": "His name is …",
+          "image": null
+        },
+        {
+          "id": "her-name-is",
+          "nl": "Haar naam is …",
+          "en": "Her name is …",
+          "image": null
+        },
+        {
+          "id": "he-is-eight-years-old",
+          "nl": "Hij is acht jaar oud.",
+          "en": "He is eight years old.",
+          "image": null
+        },
+        {
+          "id": "she-is-nine-years-old",
+          "nl": "Zij is negen jaar oud.",
+          "en": "She is nine years old.",
+          "image": null
+        },
+        {
+          "id": "he-is-very-tall",
+          "nl": "Hij is erg lang.",
+          "en": "He is very tall.",
+          "image": null
+        },
+        {
+          "id": "she-has-short-hair",
+          "nl": "Zij heeft kort haar.",
+          "en": "She has short hair.",
+          "image": null
+        },
+        {
+          "id": "this-is-my-aunt",
+          "nl": "Dit is mijn tante.",
+          "en": "This is my aunt.",
+          "image": null
+        },
+        {
+          "id": "this-is-my-uncle",
+          "nl": "Dit is mijn oom.",
+          "en": "This is my uncle.",
+          "image": null
+        },
+        {
+          "id": "they-are-my-cousins",
+          "nl": "Zij zijn mijn neven/nichten.",
+          "en": "They are my cousins.",
+          "image": null
+        },
+        {
+          "id": "she-is-a-teacher",
+          "nl": "Zij is een leerkracht.",
+          "en": "She is a teacher.",
+          "image": null
+        },
+        {
+          "id": "he-works-in-a-swimming-pool",
+          "nl": "Hij werkt in een zwembad.",
+          "en": "He works in a swimming pool.",
+          "image": null
+        },
+        {
+          "id": "we-often-play-together",
+          "nl": "We spelen vaak samen.",
+          "en": "We often play together.",
+          "image": null
+        },
+        {
+          "id": "i-love-my-family",
+          "nl": "Ik hou van mijn familie.",
+          "en": "I love my family.",
+          "image": null
+        },
+        {
+          "id": "who-is-this",
+          "nl": "Wie is dit?",
+          "en": "Who is this?",
+          "image": null
+        },
+        {
+          "id": "who-is-he",
+          "nl": "Wie is hij?",
+          "en": "Who is he?",
+          "image": null
+        },
+        {
+          "id": "who-is-she",
+          "nl": "Wie is zij?",
+          "en": "Who is she?",
+          "image": null
+        }
+      ]
+    }
+  ]
+}
