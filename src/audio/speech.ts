@@ -42,7 +42,8 @@ export function onSpeaking(fn: (speaking: boolean) => void): () => void {
 export function speak(text: string): void {
   if (typeof speechSynthesis === 'undefined') return
   if (!voice) pickVoice()
-  speechSynthesis.cancel()
+  // iOS sometimes drops an utterance spoken right after cancel(), so only cancel when needed.
+  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(speakable(text))
   u.lang = voice?.lang ?? 'en-GB'
   if (voice) u.voice = voice

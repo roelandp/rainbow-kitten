@@ -18,8 +18,8 @@ Automatische controle (screenshots op 390x844 en 402x874, twee volledige rondes)
 ```
 npm run build && npx vite preview --port 4173 &
 node scripts/check.mjs                 # alles, naar debug/screens/
-node scripts/check.mjs -- --walls      # close-up pootjes tegen de muur, links en rechts
-node scripts/check.mjs -- --states     # slaapscherm en zinnen-thema
+node scripts/check.mjs http://localhost:4173/ debug/screens --walls   # close-up pootjes tegen de muur, links en rechts
+node scripts/check.mjs http://localhost:4173/ debug/screens --states  # slaapscherm en zinnen-thema
 ```
 
 ## Deploy naar GitHub Pages
