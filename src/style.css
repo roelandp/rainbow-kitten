@@ -275,7 +275,7 @@ img {
   justify-content: center;
 }
 .menu-katja .katja-dom {
-  height: 92%;
+  height: 94%;
   max-width: 88vw;
   filter: drop-shadow(0 10px 14px rgba(35, 26, 63, 0.35));
   animation: bob 3.2s ease-in-out infinite;
@@ -366,6 +366,12 @@ img {
 /* Katja as DOM layers */
 .katja-dom {
   position: relative;
+}
+.katja-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 .katja-body {
   position: relative;

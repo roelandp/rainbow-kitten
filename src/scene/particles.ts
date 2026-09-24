@@ -164,7 +164,7 @@ export class Particles {
         x: x + (Math.random() - 0.5) * width * 0.4,
         y,
         z: 0.2 + Math.random() * 1.2,
-        vx: (Math.random() - 0.5) * width * 1.4,
+        vx: (Math.random() - 0.5) * width * 1.2 + Math.sign(x) * width * 0.35,
         vy: 3 + Math.random() * 5,
         max: 2.4 + Math.random() * 1.6,
         size: star ? 0.28 + Math.random() * 0.2 : 0.22 + Math.random() * 0.14,

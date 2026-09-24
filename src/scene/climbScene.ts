@@ -509,10 +509,12 @@ export class ClimbScene {
       return
     }
     // Confetti cat.
-    for (let i = 0; i < 5; i++) {
-      this.particles.confetti(0, topY + 1.2, 90, 5)
-      this.particles.sparkle(0, topY + 1.6, 20, true, 2)
-      await wait(520)
+    // Bursts from both sides so Katja herself stays visible.
+    for (let i = 0; i < 6; i++) {
+      const side = i % 2 === 0 ? -1 : 1
+      this.particles.confetti(side * 2.2, topY + 0.8, 40, 6)
+      this.particles.sparkle(side * 1.6, topY + 2.4, 12, true, 2)
+      await wait(480)
     }
     await wait(900)
   }

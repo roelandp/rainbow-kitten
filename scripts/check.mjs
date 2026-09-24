@@ -57,6 +57,42 @@ async function playRound(page, tag, { wrongEvery = 0, shots = [] } = {}) {
   return false
 }
 
+if (process.argv.includes('--states')) {
+  // Sentences theme in English to Dutch, and the sleep screen.
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
+  const page = await ctx.newPage()
+  await page.goto(url)
+  await page.evaluate(() => {
+    const p = { settings: { direction: 'en-nl', themeId: 'korte-zinnen', sound: true, music: true, catSounds: true }, lastRoundAt: Date.now() - 30 * 3600e3, roundsByDay: { '2026-01-01': 1 }, height: 200 }
+    localStorage.setItem('rainbowkitten.v1', JSON.stringify({ schemaVersion: 1, activeProfile: 'wyne', profiles: { wyne: p } }))
+  })
+  await page.reload()
+  await page.waitForSelector('.btn-play')
+  await wait(800)
+  await page.screenshot({ path: `${out}/state-sleep.png` })
+  await page.click('.menu-katja')
+  await wait(600)
+  await page.screenshot({ path: `${out}/state-wake.png` })
+  await page.click('.btn-play')
+  await page.waitForSelector('.scene-canvas')
+  for (let i = 0; i < 12; i++) {
+    await wait(900)
+    const learn = await page.$('.learn-btn')
+    if (i === 0) await page.screenshot({ path: `${out}/state-zin-learn.png` })
+    if (learn) await learn.click({ force: true })
+    else {
+      if (i > 4) {
+        await page.screenshot({ path: `${out}/state-zin-question.png` })
+        break
+      }
+      const id = await page.evaluate(() => window.__rkTurn?.word?.id)
+      await (await page.$(`.opt[data-id="${id}"]`))?.click({ force: true })
+    }
+  }
+  await browser.close()
+  process.exit(0)
+}
+
 if (process.argv.includes('--walls')) {
   // Close-ups of Katja hanging on the left and the right wall, to check the paws touch the wall.
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true })

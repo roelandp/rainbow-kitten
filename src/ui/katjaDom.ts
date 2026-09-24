@@ -23,8 +23,13 @@ export function spriteMeta(): SpriteMeta {
 export function katjaDom(pose: string, worn: ItemId[], cls = ''): HTMLElement {
   const pm = meta.poses[pose]
   const aspect = pm ? pm.w / pm.h : 0.6
-  const box = h('div.katja-dom', { class: cls, style: `aspect-ratio:${aspect}` })
   const placements = itemPlacements(meta, pose, worn).sort((a, b) => a.z - b.z)
+  // Hats stick out above the picture: grow the box upwards so they stay inside it.
+  const top = Math.min(0, ...placements.map((p) => p.cy - Math.max(p.h, p.w * aspect) * 0.6))
+  const extra = -top
+  const box = h('div.katja-dom', { class: cls, style: `aspect-ratio:${aspect / (1 + extra)}` })
+  const inner = h('div.katja-inner', { style: `height:${100 / (1 + extra)}%` })
+  box.append(inner)
   const layer = (id: ItemId) => {
     const pl = placements.find((p) => p.id === id)!
     return h('img.katja-item', {
@@ -36,14 +41,14 @@ export function katjaDom(pose: string, worn: ItemId[], cls = ''): HTMLElement {
         `width:${pl.w * 100}%;height:${pl.h * 100}%;transform:rotate(${pl.rot}deg)`,
     })
   }
-  for (const pl of placements.filter((p) => p.z < 0)) box.append(layer(pl.id))
+  for (const pl of placements.filter((p) => p.z < 0)) inner.append(layer(pl.id))
   const img = h('img.katja-body', { src: `./sprites/${pose}.webp`, alt: 'Katja', draggable: 'false' })
   img.onerror = () => {
     const c = placeholderCat(pose)
     c.className = 'katja-body'
     img.replaceWith(c)
   }
-  box.append(img)
-  for (const pl of placements.filter((p) => p.z >= 0)) box.append(layer(pl.id))
+  inner.append(img)
+  for (const pl of placements.filter((p) => p.z >= 0)) inner.append(layer(pl.id))
   return box
 }
