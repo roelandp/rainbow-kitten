@@ -7,7 +7,6 @@ import {
   pickNext,
   recordResult,
   startRound,
-  MAX_NEW_PER_ROUND,
 } from '../src/engine/picker'
 import { seededRng } from '../src/engine/rng'
 import { applyAnswer, applyIntroduced, computeStatus } from '../src/engine/status'
@@ -141,10 +140,10 @@ describe('picker', () => {
     expect(returns).toEqual([2, 6])
   })
 
-  it('at most 3 new words per round', () => {
+  it('new words per round follow the setting (3)', () => {
     const rng = seededRng(3)
     const stats: StatsMap = {}
-    const st = newPickerState()
+    const st = newPickerState(3)
     let learns = 0
     for (let i = 0; i < 60; i++) {
       const r = pickNext(st, keys, (k) => stats[k] ?? emptyStats(), rng, i)
@@ -156,7 +155,7 @@ describe('picker', () => {
         recordResult(st, r.key, true)
       }
     }
-    expect(learns).toBe(MAX_NEW_PER_ROUND)
+    expect(learns).toBe(3)
     startRound(st)
     let more = 0
     for (let i = 0; i < 60; i++) {
@@ -166,7 +165,50 @@ describe('picker', () => {
         stats[r.key] = applyIntroduced(stats[r.key] ?? emptyStats(), i)
       }
     }
-    expect(more).toBe(MAX_NEW_PER_ROUND)
+    expect(more).toBe(3)
+  })
+
+  it('with the default of 15, a round of 30 correct answers brings 15 new words, spread out', () => {
+    const big: string[] = Array.from({ length: 55 }, (_, i) => `w${i}:nl-en`)
+    const rng = seededRng(8)
+    const stats: StatsMap = {}
+    const st = newPickerState()
+    let learns = 0
+    let correct = 0
+    const learnTurns: number[] = []
+    while (correct < 30) {
+      const r = pickNext(st, big, (k) => stats[k] ?? emptyStats(), rng, 0)
+      if (r.kind === 'learn') {
+        learns++
+        learnTurns.push(st.turn)
+        stats[r.key] = applyIntroduced(stats[r.key] ?? emptyStats(), 0)
+      } else {
+        correct++
+        stats[r.key] = applyAnswer(stats[r.key] ?? emptyStats(), true, 3000, 'd', 0)
+        recordResult(st, r.key, true)
+      }
+    }
+    expect(learns).toBe(15)
+    // Spread over the round, not all at the start.
+    expect(learnTurns[learnTurns.length - 1] - learnTurns[0]).toBeGreaterThanOrEqual(30)
+    // Never three learn cards in a row after the start.
+    const bursts = learnTurns.slice(4).filter((t, i) => t - learnTurns[i + 2] <= 2)
+    expect(bursts).toEqual([])
+    // Four rounds cover all 55 words.
+    for (let round = 0; round < 3; round++) {
+      startRound(st)
+      correct = 0
+      while (correct < 30) {
+        const r = pickNext(st, big, (k) => stats[k] ?? emptyStats(), rng, 0)
+        if (r.kind === 'learn') stats[r.key] = applyIntroduced(stats[r.key] ?? emptyStats(), 0)
+        else {
+          correct++
+          stats[r.key] = applyAnswer(stats[r.key] ?? emptyStats(), true, 3000, 'd', 0)
+          recordResult(st, r.key, true)
+        }
+      }
+    }
+    expect(big.every((k) => (stats[k]?.seen ?? 0) > 0)).toBe(true)
   })
 
   it('safety net below 75% over the last 8 only picks known words', () => {

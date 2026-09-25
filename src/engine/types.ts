@@ -7,6 +7,8 @@ export interface Word {
   nl: string
   en: string
   image: string | null
+  /** Original theme when themes are mixed; distractors come from the same group. */
+  group?: string
 }
 
 export interface Theme {

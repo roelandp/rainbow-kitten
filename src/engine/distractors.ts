@@ -33,7 +33,10 @@ export function pickDistractors(
   const target = norm(answerText(answer, dir))
   const seen = new Set<string>([target])
   const pool: Word[] = []
-  for (const w of shuffle(themeWords, rng)) {
+  // Mixed themes: words get word options, sentences get sentence options.
+  const sameGroup = answer.group ? themeWords.filter((w) => w.group === answer.group) : themeWords
+  const source = sameGroup.length >= count + 1 ? sameGroup : themeWords
+  for (const w of shuffle(source, rng)) {
     if (w.id === answer.id) continue
     const t = norm(answerText(w, dir))
     if (seen.has(t)) continue

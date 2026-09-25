@@ -10,6 +10,8 @@ export interface Settings {
   sound: boolean
   music: boolean
   catSounds: boolean
+  /** New words (learn cards) per round. */
+  newPerRound: number
 }
 
 export interface Profile {
@@ -37,7 +39,7 @@ export interface SaveData {
 
 export function defaultProfile(): Profile {
   return {
-    settings: { direction: 'nl-en', themeId: 'family-tree', sound: true, music: true, catSounds: true },
+    settings: { direction: 'nl-en', themeId: 'alles', sound: true, music: true, catSounds: true, newPerRound: 15 },
     stats: {},
     customThemes: [],
     extraWords: {},

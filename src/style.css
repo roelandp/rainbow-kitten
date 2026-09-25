@@ -1097,3 +1097,22 @@ img {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
+
+.choice-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.choice {
+  min-height: 52px;
+  border-radius: 14px;
+  background: var(--cream);
+  font-weight: 900;
+  font-size: 20px;
+  color: var(--ink-soft);
+}
+.choice[aria-pressed='true'] {
+  background: var(--good-soft);
+  color: var(--ink);
+  box-shadow: 0 0 0 3px var(--good);
+}

@@ -38,6 +38,13 @@ node scripts/check.mjs http://localhost:4173/ debug/screens --states  # slaapsch
 - De service worker haalt pagina's altijd vers van het netwerk (`no-store`), laat plaatjes en geluid bij de server
   hervalideren, en gebruikt de cache alleen als er geen internet is. Elke deploy krijgt een nieuwe service worker.
 
+## Thema's en tempo
+
+- **Alles door elkaar** (standaard): beide lijsten van school samen, want het is één toets.
+  Afleiders komen uit dezelfde lijst (woorden bij woorden, zinnen bij zinnen).
+- **Nieuwe woorden per ronde**: in Instellingen 3, 5, 10, 15 (standaard) of 20. Bij 15 heeft Wyne
+  na 4 rondes (2 dagen) alle 55 woorden gezien. Elk nieuw woord komt na 2 en na 6 beurten terug als vraag.
+
 ## Nieuwe woorden
 
 - Foto van een nieuwe lijst in `visuals/` en Claude Code vragen die toe te voegen aan `src/content/words.json`, of

@@ -21,9 +21,9 @@ export class WordEngine {
     public dir: Direction,
     public stats: StatsMap,
     private rng: Rng,
-    picker?: PickerState,
+    maxNew?: number,
   ) {
-    this.picker = picker ?? newPickerState()
+    this.picker = newPickerState(maxNew)
   }
 
   get(key: string): ItemStats {

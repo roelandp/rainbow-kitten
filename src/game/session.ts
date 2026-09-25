@@ -16,12 +16,21 @@ import {
   Zone,
 } from './rules'
 
+export const MIXED_THEME_ID = 'alles'
+
+/** All themes, with the mixed theme first: every list together, for one test. */
 export function allThemes(p: Profile): Theme[] {
   const base = (builtIn as { themes: Theme[] }).themes.map((t) => ({
     ...t,
     words: [...t.words, ...(p.extraWords[t.id] ?? [])],
   }))
-  return [...base, ...p.customThemes]
+  const single = [...base, ...p.customThemes]
+  const mixed: Theme = {
+    id: MIXED_THEME_ID,
+    title: 'Alles door elkaar',
+    words: single.flatMap((t) => t.words.map((w) => ({ ...w, id: `${t.id}~${w.id}`, group: t.id }))),
+  }
+  return [mixed, ...single]
 }
 
 export interface AnswerResult {
@@ -79,7 +88,7 @@ export class GameSession {
     const p = this.profile
     const theme = this.theme
     p.stats[theme.id] = p.stats[theme.id] ?? {}
-    return new WordEngine(theme, p.settings.direction, p.stats[theme.id] as StatsMap, this.rng)
+    return new WordEngine(theme, p.settings.direction, p.stats[theme.id] as StatsMap, this.rng, p.settings.newPerRound)
   }
 
   /** Call after changing theme or direction in the settings. */
@@ -104,6 +113,7 @@ export class GameSession {
     const keepPicker = this.engine.theme.id === this.theme.id && this.engine.dir === this.direction
     if (!keepPicker) this.reload()
     else this.engine.theme = this.theme
+    this.engine.picker.maxNew = this.profile.settings.newPerRound
     this.engine.startRound()
     this.plan = planRound(this.rng, 'left')
     this.round = new RoundCounter(this.plan)

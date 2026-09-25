@@ -13,6 +13,10 @@ export interface PickResult {
 export interface PickerState {
   turn: number
   newThisRound: number
+  /** How many new words (learn cards) a round may bring. Setting, default 15. */
+  maxNew: number
+  /** Turn of the last learn card, to spread new words over the round. */
+  lastNewTurn: number
   retries: { key: string; wait: number }[]
   learnReturns: { key: string; due: number }[]
   /** Results of the last questions, newest last. */
@@ -20,15 +24,21 @@ export interface PickerState {
   lastPairKey: string | null
 }
 
-export const MAX_NEW_PER_ROUND = 3
+export const DEFAULT_NEW_PER_ROUND = 15
+export const NEW_PER_ROUND_OPTIONS = [3, 5, 10, 15, 20]
+/**
+ * While the quota is not used up, a new word comes whenever no retry or learn return is due
+ * (at most one every NEW_SPACING turns). The returns after 2 and 6 turns spread them out by themselves.
+ */
+export const NEW_SPACING = 1
 export const RETRY_WAIT = 2
 export const LEARN_RETURNS = [2, 6]
 export const SAFETY_WINDOW = 8
 export const SAFETY_RATIO = 0.75
 export const WEAK_SHARE = 0.7
 
-export function newPickerState(): PickerState {
-  return { turn: 0, newThisRound: 0, retries: [], learnReturns: [], history: [], lastPairKey: null }
+export function newPickerState(maxNew = DEFAULT_NEW_PER_ROUND): PickerState {
+  return { turn: 0, newThisRound: 0, maxNew, lastNewTurn: -99, retries: [], learnReturns: [], history: [], lastPairKey: null }
 }
 
 function isWeak(s: ItemStats): boolean {
@@ -90,12 +100,21 @@ export function pickNext(
     if (pick) return done({ key: pick, kind: 'question', reason: 'safety' })
   }
 
-  const canLearnNew = !safety && state.newThisRound < MAX_NEW_PER_ROUND
-  const weak = pool.filter((k) => {
-    const s = stats(k)
-    if (!isWeak(s)) return false
-    return s.status !== 'nieuw' || canLearnNew
-  })
+  const canLearnNew = !safety && state.newThisRound < state.maxNew
+  const learnNew = (pick: string): PickResult => {
+    state.newThisRound += 1
+    state.lastNewTurn = state.turn
+    for (const d of LEARN_RETURNS) state.learnReturns.push({ key: pick, due: state.turn + d })
+    return done({ key: pick, kind: 'learn', reason: 'new' })
+  }
+
+  // New words are spread over the round: one every few turns until the quota is reached.
+  const fresh = pool.filter((k) => stats(k).status === 'nieuw')
+  if (canLearnNew && fresh.length > 0 && state.turn - state.lastNewTurn >= NEW_SPACING) {
+    return learnNew(fresh[Math.floor(rng() * fresh.length)])
+  }
+  // New words only arrive through the spaced step above (or the fallback when nothing else can be asked).
+  const weak = pool.filter((k) => stats(k).status === 'oefenen')
   const strong = pool.filter((k) => !isWeak(stats(k)))
 
   // 3. 70% weak words, 30% strong words.
@@ -113,11 +132,7 @@ export function pickNext(
         },
         rng,
       )!
-      if (stats(pick).status === 'nieuw') {
-        state.newThisRound += 1
-        for (const d of LEARN_RETURNS) state.learnReturns.push({ key: pick, due: state.turn + d })
-        return done({ key: pick, kind: 'learn', reason: 'new' })
-      }
+      if (stats(pick).status === 'nieuw') return learnNew(pick)
       return done({ key: pick, kind: 'question', reason: 'weak' })
     }
     if (kind === 'strong' && strong.length > 0) {
@@ -130,11 +145,7 @@ export function pickNext(
   const seen = pool.filter((k) => stats(k).seen > 0)
   const set = seen.length > 0 ? seen : pool
   const pick = set[Math.floor(rng() * set.length)]
-  if (stats(pick).status === 'nieuw') {
-    state.newThisRound += 1
-    for (const d of LEARN_RETURNS) state.learnReturns.push({ key: pick, due: state.turn + d })
-    return done({ key: pick, kind: 'learn', reason: 'new' })
-  }
+  if (stats(pick).status === 'nieuw') return learnNew(pick)
   return done({ key: pick, kind: 'question', reason: 'fallback' })
 }
 

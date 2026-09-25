@@ -1,7 +1,8 @@
 import type { Screen } from '../app'
 import { audio } from '../audio/audio'
 import { addToTheme, newTheme, parseImport } from '../game/importWords'
-import { allThemes } from '../game/session'
+import { NEW_PER_ROUND_OPTIONS } from '../engine/picker'
+import { allThemes, MIXED_THEME_ID } from '../game/session'
 import { defaultProfile } from '../storage/storage'
 import { h, onTap } from './dom'
 import { directionSwitch } from './menu'
@@ -42,8 +43,9 @@ export const instellingenScreen: Screen = (app, root) => {
 
     // Import
     const area = h('textarea.import-text', { rows: 5, placeholder: 'moeder;mother\nvader;father', spellcheck: 'false', autocapitalize: 'off' }) as HTMLTextAreaElement
-    const target = h('select.import-target', {}, ...themes.map((t) => h('option', { value: t.id }, t.title)), h('option', { value: '__new' }, 'Nieuw thema...')) as HTMLSelectElement
-    target.value = s.theme.id
+    const importable = themes.filter((t) => t.id !== MIXED_THEME_ID)
+    const target = h('select.import-target', {}, ...importable.map((t) => h('option', { value: t.id }, t.title)), h('option', { value: '__new' }, 'Nieuw thema...')) as HTMLSelectElement
+    target.value = importable.some((t) => t.id === s.theme.id) ? s.theme.id : importable[0]?.id ?? '__new'
     const newName = h('input.import-name', { type: 'text', placeholder: 'Naam van het nieuwe thema', hidden: true }) as HTMLInputElement
     target.addEventListener('change', () => (newName.hidden = target.value !== '__new'))
     const msg = h('div.import-msg')
@@ -73,7 +75,7 @@ export const instellingenScreen: Screen = (app, root) => {
           p.extraWords[themeId] = [...(p.extraWords[themeId] ?? []), ...copy.words.slice(before)]
         }
       }
-      p.settings.themeId = themeId
+      if (p.settings.themeId !== MIXED_THEME_ID) p.settings.themeId = themeId
       s.reload()
       s.persist()
       area.value = ''
@@ -115,6 +117,27 @@ export const instellingenScreen: Screen = (app, root) => {
           s.reload()
           s.persist()
         }),
+      ),
+      h(
+        'section.set',
+        {},
+        h('h3', {}, 'Nieuwe woorden per ronde'),
+        h('p.hint', {}, 'Zoveel nieuwe woorden leert Katja per ronde. Bij 15 heb je na 4 rondes alles gezien.'),
+        h(
+          'div.choice-row',
+          {},
+          ...NEW_PER_ROUND_OPTIONS.map((n) => {
+            const b = h('button.choice', { type: 'button', 'aria-pressed': String(p.settings.newPerRound === n) }, String(n))
+            onTap(b, () => {
+              p.settings.newPerRound = n
+              s.engine.picker.maxNew = n
+              s.persist()
+              audio.tap()
+              render()
+            })
+            return b
+          }),
+        ),
       ),
       h(
         'section.set',
