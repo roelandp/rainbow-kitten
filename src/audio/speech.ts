@@ -39,6 +39,19 @@ export function onSpeaking(fn: (speaking: boolean) => void): () => void {
   return () => listeners.delete(fn)
 }
 
+/** Last things that happened, for the voice test in the settings. */
+export const speechLog: string[] = []
+function log(msg: string): void {
+  speechLog.push(msg)
+  if (speechLog.length > 12) speechLog.shift()
+}
+
+export function voiceInfo(): string {
+  if (typeof speechSynthesis === 'undefined') return 'Deze browser kan niet voorlezen.'
+  const en = speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith('en')).length
+  return voice ? `Stem: ${voice.name} (${voice.lang}), ${en} Engelse stemmen` : `Geen Engelse stem gevonden (${en})`
+}
+
 /** Strong references: WebKit can garbage-collect an utterance mid-sentence and cut it off. */
 const alive = new Set<SpeechSynthesisUtterance>()
 
@@ -67,8 +80,12 @@ export function speak(text: string): Promise<void> {
       if (withVoice && voice) u.voice = voice
       u.rate = 0.85
       alive.add(u)
-      u.onstart = () => listeners.forEach((f) => f(true))
+      u.onstart = () => {
+        log('begonnen')
+        listeners.forEach((f) => f(true))
+      }
       u.onend = () => {
+        log('klaar')
         alive.delete(u)
         end()
       }
@@ -76,12 +93,14 @@ export function speak(text: string): Promise<void> {
         alive.delete(u)
         // A chosen voice that is not installed fails on some iPads: try once more with only the language.
         const err = (e as SpeechSynthesisErrorEvent).error
+        log(`fout: ${err}${withVoice ? '' : ' (zonder vaste stem)'}`)
         if (withVoice && err !== 'interrupted' && err !== 'canceled') say(false)
         else end()
       }
       speechSynthesis.speak(u)
     }
     listeners.forEach((f) => f(true))
+    log(`start: "${words.slice(0, 30)}"`)
     say(true)
     // Some browsers never fire onend; never wait forever.
     setTimeout(end, 1500 + words.length * 110)

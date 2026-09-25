@@ -1116,3 +1116,15 @@ img {
   color: var(--ink);
   box-shadow: 0 0 0 3px var(--good);
 }
+
+.voice-log {
+  white-space: pre-line;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 8px 10px;
+  -webkit-user-select: text;
+  user-select: text;
+}

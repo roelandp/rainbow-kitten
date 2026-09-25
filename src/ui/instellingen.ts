@@ -1,5 +1,6 @@
 import type { Screen } from '../app'
 import { audio } from '../audio/audio'
+import { speak, speechLog, voiceInfo } from '../audio/speech'
 import { addToTheme, newTheme, parseImport } from '../game/importWords'
 import { NEW_PER_ROUND_OPTIONS } from '../engine/picker'
 import { allThemes, MIXED_THEME_ID } from '../game/session'
@@ -16,6 +17,27 @@ function toggleRow(label: string, value: boolean, onChange: (v: boolean) => void
     onChange(value)
   })
   return h('div.set-row', {}, h('span', {}, label), sw)
+}
+
+/** Reads a long sentence and shows what the speech engine did, to check it on the iPad. */
+function voiceTest(): HTMLElement {
+  const out = h('div.voice-log')
+  const btn = h('button.btn.btn-small', { type: 'button' }, 'Stem testen')
+  const show = (extra = '') => {
+    out.textContent = [voiceInfo(), ...speechLog.slice(-5), extra].filter(Boolean).join('\n')
+  }
+  onTap(btn, () => {
+    audio.unlock()
+    speechLog.length = 0
+    const t0 = performance.now()
+    void speak('This is my family tree. We often play together. He works in a swimming pool.').then(() => {
+      show(`Duurde ${((performance.now() - t0) / 1000).toFixed(1)} sec`)
+    })
+    show()
+    setTimeout(() => show(), 800)
+  })
+  show()
+  return h('section.set', {}, h('h3', {}, 'Voorlezen'), h('p.hint', {}, 'Hoor je de hele zin? Staat de iPad niet op stil?'), btn, out)
 }
 
 export const instellingenScreen: Screen = (app, root) => {
@@ -156,6 +178,7 @@ export const instellingenScreen: Screen = (app, root) => {
           soundChanged()
         }),
       ),
+      voiceTest(),
       h('section.set', {}, h('h3', {}, 'Woorden toevoegen'), h('p.hint', {}, 'Per regel: nederlands;engels'), area, h('div.import-row', {}, target, add), newName, msg),
       h('section.set', {}, h('h3', {}, 'Voortgang'), reset, confirmBox),
       h('div.version', {}, `Rainbow Kitten, versie ${__COMMIT__} (${new Date(__BUILT_AT__).toLocaleString('nl-NL')})`),
