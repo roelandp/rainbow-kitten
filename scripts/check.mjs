@@ -13,6 +13,8 @@ const sizes = [
   [402, 874],
 ]
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
+/** Buttons are replaced between turns; a click on a stale one is simply retried next loop. */
+const tap = (el) => el?.click({ force: true, timeout: 2000 }).then(() => true, () => false) ?? false
 
 async function playRound(page, tag, { wrongEvery = 0, shots = [] } = {}) {
   let n = 0
@@ -21,7 +23,7 @@ async function playRound(page, tag, { wrongEvery = 0, shots = [] } = {}) {
     const learn = await page.$('.learn-btn')
     if (learn) {
       if (shots.includes('learn')) await page.screenshot({ path: `${out}/${tag}-learn.png` })
-      await learn.click({ force: true })
+      await tap(learn)
       await wait(700)
       continue
     }
@@ -35,7 +37,7 @@ async function playRound(page, tag, { wrongEvery = 0, shots = [] } = {}) {
     if (wrongEvery && n % wrongEvery === 0) {
       const wrong = await page.$(`.opt:not([data-id="${id}"])`)
       if (wrong) {
-        await wrong.click({ force: true })
+        await tap(wrong)
         await wait(500)
         if (shots.includes('wrong') && n === wrongEvery) await page.screenshot({ path: `${out}/${tag}-wrong.png` })
       }
@@ -45,7 +47,7 @@ async function playRound(page, tag, { wrongEvery = 0, shots = [] } = {}) {
       await wait(300)
       continue
     }
-    await good.click({ force: true })
+    if (!(await tap(good))) continue
     const jumps = Number(await page.textContent('.counter b'))
     if (shots.includes('jump') && [4, 11, 16, 26].includes(jumps)) await wait(900), await page.screenshot({ path: `${out}/${tag}-jump${jumps}.png` })
     await wait(jumps % 5 === 0 ? 1500 : 800)
@@ -79,14 +81,14 @@ if (process.argv.includes('--states')) {
     await wait(900)
     const learn = await page.$('.learn-btn')
     if (i === 0) await page.screenshot({ path: `${out}/state-zin-learn.png` })
-    if (learn) await learn.click({ force: true })
+    if (learn) await tap(learn)
     else {
       if (i > 4) {
         await page.screenshot({ path: `${out}/state-zin-question.png` })
         break
       }
       const id = await page.evaluate(() => window.__rkTurn?.word?.id)
-      await (await page.$(`.opt[data-id="${id}"]`))?.click({ force: true })
+      await tap(await page.$(`.opt[data-id="${id}"]`))
     }
   }
   await browser.close()
@@ -111,11 +113,11 @@ if (process.argv.includes('--walls')) {
       continue
     }
     const learn = await page.$('.learn-btn')
-    if (learn) await learn.click({ force: true })
+    if (learn) await tap(learn)
     else {
       const id = await page.evaluate(() => window.__rkTurn?.word?.id)
       const good = await page.$(`.opt[data-id="${id}"]`)
-      if (good) await good.click({ force: true })
+      if (good) await tap(good)
     }
     await wait(900)
   }
