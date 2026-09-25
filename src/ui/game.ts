@@ -57,6 +57,7 @@ export const gameScreen: Screen = (app, root) => {
   let shownAt = 0
   let state: 'idle' | 'question' | 'retap' | 'learn' | 'done' = 'idle'
   let lastPurr = 0
+  let learnSpeech: Promise<void> = Promise.resolve()
   const timers: number[] = []
   const later = (ms: number, fn: () => void) => {
     timers.push(window.setTimeout(() => alive && fn(), ms))
@@ -77,6 +78,15 @@ export const gameScreen: Screen = (app, root) => {
     void toast.offsetWidth
     toast.classList.add('show')
     if (ms > 0) later(ms, () => (toast.hidden = true))
+  }
+
+  /** Next turn after `ms`, but never while the answer is still being read out (max 5 sec). */
+  const nextAfter = (ms: number, speech: Promise<void>) => {
+    const cap = new Promise<void>((r) => setTimeout(r, 5000))
+    const min = new Promise<void>((r) => setTimeout(r, ms))
+    void Promise.all([min, Promise.race([speech, cap])]).then(() => {
+      if (alive) nextTurn()
+    })
   }
 
   const speakerBtn = (text: string) => {
@@ -136,9 +146,9 @@ export const gameScreen: Screen = (app, root) => {
       b.classList.add('good')
       audio.tap()
       s.learned(t)
-      later(450, nextTurn)
+      nextAfter(450, learnSpeech)
     })
-    speak(t.word.en)
+    learnSpeech = speak(t.word.en)
     void scene?.handle({ type: 'happy' })
     if (Date.now() - lastPurr > 8000) {
       lastPurr = Date.now()
@@ -158,8 +168,7 @@ export const gameScreen: Screen = (app, root) => {
       state = 'idle'
       btn.classList.remove('showme')
       btn.classList.add('good')
-      if (dir === 'nl-en') speak(turn.word.en)
-      later(650, nextTurn)
+      nextAfter(650, dir === 'nl-en' ? speak(turn.word.en) : Promise.resolve())
       return
     }
     if (state !== 'question') return
@@ -179,10 +188,10 @@ export const gameScreen: Screen = (app, root) => {
       return
     }
     btn.classList.add('good')
-    if (dir === 'nl-en') speak(turn.word.en)
+    const spoken = dir === 'nl-en' ? speak(turn.word.en) : Promise.resolve()
     const jump = res.jump
     if (!jump || !scene) {
-      later(600, nextTurn)
+      nextAfter(600, spoken)
       return
     }
     counterNum.textContent = String(jump.jumps)
@@ -209,7 +218,7 @@ export const gameScreen: Screen = (app, root) => {
       })
     }
     if (res.zoneChanged) zoneChanged(res.zoneChanged)
-    later(jump.item ? 1300 : 650, nextTurn)
+    nextAfter(jump.item ? 1300 : 650, spoken)
   }
 
   const zoneChanged = (z: Zone) => {

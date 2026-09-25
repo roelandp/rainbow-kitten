@@ -39,21 +39,51 @@ export function onSpeaking(fn: (speaking: boolean) => void): () => void {
   return () => listeners.delete(fn)
 }
 
-export function speak(text: string): void {
-  if (typeof speechSynthesis === 'undefined') return
+/** Strong references: WebKit can garbage-collect an utterance mid-sentence and cut it off. */
+const alive = new Set<SpeechSynthesisUtterance>()
+
+/**
+ * Speaks English. Resolves when done (or after a safety timeout), so callers can wait for a
+ * whole sentence before the next word starts.
+ */
+export function speak(text: string): Promise<void> {
+  if (typeof speechSynthesis === 'undefined') return Promise.resolve()
   if (!voice) pickVoice()
   // iOS sometimes drops an utterance spoken right after cancel(), so only cancel when needed.
   if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel()
-  const u = new SpeechSynthesisUtterance(speakable(text))
-  u.lang = voice?.lang ?? 'en-GB'
-  if (voice) u.voice = voice
-  u.rate = 0.85
-  u.onstart = () => listeners.forEach((f) => f(true))
-  const end = () => listeners.forEach((f) => f(false))
-  u.onend = end
-  u.onerror = end
-  listeners.forEach((f) => f(true))
-  speechSynthesis.speak(u)
-  // Some browsers never fire onend; make sure the music comes back up.
-  setTimeout(end, 2500 + text.length * 90)
+  if (speechSynthesis.paused) speechSynthesis.resume()
+  const words = speakable(text)
+  return new Promise((resolve) => {
+    let finished = false
+    const end = () => {
+      if (finished) return
+      finished = true
+      listeners.forEach((f) => f(false))
+      resolve()
+    }
+    const say = (withVoice: boolean) => {
+      const u = new SpeechSynthesisUtterance(words)
+      u.lang = voice?.lang ?? 'en-GB'
+      if (withVoice && voice) u.voice = voice
+      u.rate = 0.85
+      alive.add(u)
+      u.onstart = () => listeners.forEach((f) => f(true))
+      u.onend = () => {
+        alive.delete(u)
+        end()
+      }
+      u.onerror = (e) => {
+        alive.delete(u)
+        // A chosen voice that is not installed fails on some iPads: try once more with only the language.
+        const err = (e as SpeechSynthesisErrorEvent).error
+        if (withVoice && err !== 'interrupted' && err !== 'canceled') say(false)
+        else end()
+      }
+      speechSynthesis.speak(u)
+    }
+    listeners.forEach((f) => f(true))
+    say(true)
+    // Some browsers never fire onend; never wait forever.
+    setTimeout(end, 1500 + words.length * 110)
+  })
 }
